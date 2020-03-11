@@ -18,6 +18,7 @@ read -p "Enter the IP address of the web server that will display the graphs: " 
 
 if [[ $serverIP =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
     #do stuff
+    echo "using $serverIP as the Webserver"
 else 
     echo "$serverIP is not a valid IP address, exiting"
     exit 1
@@ -44,13 +45,16 @@ if [ "${bNet,,}"=="y" ]; then
     echo "Will track Net Info"
 fi
 
-read -p "Enter cron string for scheduling, ex: '* * * * *' (Every Minute), '0 * * * *' (Every Hour)" cronString
-echo "$cronString /bin/bash /home/derek/sysinfo.sh ${arg}> /dev/null 2>&1" > /etc/cron.d/sysinfo
+read -p "Enter cron string for scheduling, ex: '* * * * *' (Every Minute), '0 * * * *' (Every Hour): " cronString
+echo "$cronString root /bin/bash /home/derek/sysInfo.sh ${arg} > /dev/null 2>&1" > /etc/cron.d/sysinfo
 
-sed -i "s/{{SERVERIP}}/${serverIP}/g" sysinfo.sh
-chmod +x sysinfo.sh
+sed -i "s/{{SERVERIP}}/${serverIP}/g" sysInfo.sh
+chmod +x sysInfo.sh
 chmod +x webHelper.sh
-rsync -av graphmaker.gp webHelper.sh $serverIP/home/derek/
-ssh -t $serverIP `echo "$cronString /bin/bash /home/derek/webHelper.sh ${arg}> /dev/null 2>&1" > /etc/cron.d/webhelper`
+ssh-keygen -t rsa -N "" -f rsyncKeys.pem
+chmod 644 rsyncKeys.pem.pub
+ssh-copy-id -i rsyncKeys.pem.pub derek@$serverIP
+rsync -av -e "ssh -i rsyncKeys.pem" graphmaker.gp webHelper.sh derek@$serverIP:/home/derek/
+ssh -t derek@$serverIP -i rsyncKeys.pem "sudo echo '$cronString root /bin/bash /home/derek/webHelper.sh ${arg}' | sudo tee -a /etc/cron.d/webhelper > /dev/null"
 
 echo "Scripts installed."
