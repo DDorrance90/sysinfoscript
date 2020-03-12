@@ -24,10 +24,14 @@
 # * Network speed: run speedtest.net tool and filter output with awk
 
 
-# Path to CSV Output file. Will be /home/username/sysinfo.csv
-CSV_PATH="home/derek/sysinfo.csv"
-REMOTE_CSV_PATH="/home/derek"
+# Path to CSV Output file. Will be /home/username/sysinfo.csv.
+# The USERNAME value is replaced by sysinfoInstaller.sh
 
+CSV_PATH="/home/{{USERNAME}}/sysinfo.csv"
+
+
+# Get the flags from the script execution call.
+# d = disk, c = cpu, n = net. 
 while getopts ":dcn" opt; do
   case ${opt} in
     d ) 
@@ -92,8 +96,9 @@ writeCSV () {
 
 writeCSV
 
+#Check if there are 24 or more entries, if so, send that sysinfo.csv to the serverIP and remove the original, if successful
 csvSize=$(cat $CSV_PATH | wc -l)
 
-if [ $csvSize > 24 ]; then
-    rsync --remove-source-files -av $CSV_PATH "{{SERVERIP}}:/home/derek/sysinfo.csv" 
+if [ $csvSize -gt 24 ]; then
+    rsync --remove-source-files -av $CSV_PATH -e "ssh -i $HOME/.ssh/id_rsa" "{{USERNAME}}@{{SERVERIP}}:/home/{{USERNAME}}/sysinfo.csv" 
 fi

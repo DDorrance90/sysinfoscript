@@ -8,7 +8,7 @@
 # Desctiption: This script creates gnuplot graphs from a CSV file with sysinfo.         
 ####################################################################################
 
-CSV_PATH="/home/derek/sysinfo.csv" 
+CSV_PATH="/home/{{USERNAME}}/sysinfo.csv" 
 OUT_PATH="/var/www/html/"
 
 set term png
@@ -17,6 +17,7 @@ set key off
 set datafile separator ','
 set xdata time
 set timefmt "%H-%M-%S"
+set format x "%H:%M"
 set title "Disk Usage (Percentage over Time)"
 set ylabel "%" 
 set xlabel 'Time'
@@ -40,8 +41,9 @@ set ylabel "ms"
 set xlabel 'Time'
 plot CSV_PATH using 2:9 with lines
 
+set key
 set output "/var/www/html/networkspeed.png"
 set title "Network Speed (Bandwidth)"
-set ylabel "%" 
+set ylabel "Mbit / sec" 
 set xlabel 'Time'
-plot CSV_PATH using 2:10 with lines, '' using 2:11 with lines
+plot CSV_PATH using 2:10 with lines title 'Download', '' using 2:11 with lines title 'Upload'
