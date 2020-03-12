@@ -62,4 +62,4 @@ if [ -f /var/www/html/diskusage.png ]; then
 fi
 
 # Execute the graphmaker script
-./graphmaker.gp
+/usr/bin/gnuplot /home/{{USERNAME}}/graphmaker.gp

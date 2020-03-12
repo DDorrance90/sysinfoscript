@@ -38,9 +38,10 @@ installScripts () {
 
     # Replace the placeholder text {{SERVERIP}} with the actual IP to use
     sed -i "s/{{SERVERIP}}/${serverIP}/g" sysInfo.sh
-    # Replace the {{USERNAME}} in sysInfo.sh with the actual username to use
+    # Replace the {{USERNAME}} in sysInfo.sh, graphmaker.gp, and webHelper.sh with the actual username to use
     sed -i "s/{{USERNAME}}/${userName}/g" sysInfo.sh
     sed -i "s/{{USERNAME}}/${userName}/g" graphmaker.gp
+    sed -i "s/{{USERNAME}}/${userName}/g" webHelper.sh
 
     # Check if ssh keys are already generated, if not, create them.
     # Set the permissions on the public key (rw,r,r) and copy it to the serverIP
